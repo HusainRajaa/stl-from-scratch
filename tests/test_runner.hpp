@@ -117,6 +117,60 @@ std::string to_string_repr(const T& val) {
     }
 }
 
+template <typename T1, typename T2>
+bool are_equal(const T1& a, const T2& b) {
+    if constexpr (std::is_integral_v<T1> && std::is_integral_v<T2>) {
+        return std::cmp_equal(a, b);
+    } else {
+        return a == b;
+    }
+}
+
+template <typename T1, typename T2>
+bool are_not_equal(const T1& a, const T2& b) {
+    if constexpr (std::is_integral_v<T1> && std::is_integral_v<T2>) {
+        return std::cmp_not_equal(a, b);
+    } else {
+        return a != b;
+    }
+}
+
+template <typename T1, typename T2>
+bool is_less(const T1& a, const T2& b) {
+    if constexpr (std::is_integral_v<T1> && std::is_integral_v<T2>) {
+        return std::cmp_less(a, b);
+    } else {
+        return a < b;
+    }
+}
+
+template <typename T1, typename T2>
+bool is_less_equal(const T1& a, const T2& b) {
+    if constexpr (std::is_integral_v<T1> && std::is_integral_v<T2>) {
+        return std::cmp_less_equal(a, b);
+    } else {
+        return a <= b;
+    }
+}
+
+template <typename T1, typename T2>
+bool is_greater(const T1& a, const T2& b) {
+    if constexpr (std::is_integral_v<T1> && std::is_integral_v<T2>) {
+        return std::cmp_greater(a, b);
+    } else {
+        return a > b;
+    }
+}
+
+template <typename T1, typename T2>
+bool is_greater_equal(const T1& a, const T2& b) {
+    if constexpr (std::is_integral_v<T1> && std::is_integral_v<T2>) {
+        return std::cmp_greater_equal(a, b);
+    } else {
+        return a >= b;
+    }
+}
+
 } // namespace stl::test
 
 #define TEST_CASE(suite_name, test_name) \
@@ -145,7 +199,7 @@ std::string to_string_repr(const T& val) {
     do { \
         const auto& exp_val = (expected); \
         const auto& act_val = (actual); \
-        if (!(exp_val == act_val)) { \
+        if (!::stl::test::are_equal(exp_val, act_val)) { \
             throw ::stl::test::TestFailure( \
                 std::string("Expected: ") + ::stl::test::to_string_repr(exp_val) + \
                 ", Actual: " + ::stl::test::to_string_repr(act_val) + \
@@ -157,7 +211,7 @@ std::string to_string_repr(const T& val) {
     do { \
         const auto& v1 = (val1); \
         const auto& v2 = (val2); \
-        if (v1 == v2) { \
+        if (!::stl::test::are_not_equal(v1, v2)) { \
             throw ::stl::test::TestFailure( \
                 std::string("Expected not equal: ") + #val1 " == " #val2, __FILE__, __LINE__); \
         } \
@@ -165,7 +219,7 @@ std::string to_string_repr(const T& val) {
 
 #define ASSERT_LT(val1, val2) \
     do { \
-        if (!((val1) < (val2))) { \
+        if (!::stl::test::is_less((val1), (val2))) { \
             throw ::stl::test::TestFailure( \
                 std::string("Assertion failed: ") + #val1 " < " #val2, __FILE__, __LINE__); \
         } \
@@ -173,7 +227,7 @@ std::string to_string_repr(const T& val) {
 
 #define ASSERT_LE(val1, val2) \
     do { \
-        if (!((val1) <= (val2))) { \
+        if (!::stl::test::is_less_equal((val1), (val2))) { \
             throw ::stl::test::TestFailure( \
                 std::string("Assertion failed: ") + #val1 " <= " #val2, __FILE__, __LINE__); \
         } \
@@ -181,7 +235,7 @@ std::string to_string_repr(const T& val) {
 
 #define ASSERT_GT(val1, val2) \
     do { \
-        if (!((val1) > (val2))) { \
+        if (!::stl::test::is_greater((val1), (val2))) { \
             throw ::stl::test::TestFailure( \
                 std::string("Assertion failed: ") + #val1 " > " #val2, __FILE__, __LINE__); \
         } \
@@ -189,17 +243,16 @@ std::string to_string_repr(const T& val) {
 
 #define ASSERT_GE(val1, val2) \
     do { \
-        if (!((val1) >= (val2))) { \
+        if (!::stl::test::is_greater_equal((val1), (val2))) { \
             throw ::stl::test::TestFailure( \
                 std::string("Assertion failed: ") + #val1 " >= " #val2, __FILE__, __LINE__); \
         } \
     } while (false)
-
 #define ASSERT_THROWS(expression, exception_type) \
     do { \
         bool caught = false; \
         try { \
-            expression; \
+            (void)(expression); \
         } catch (const exception_type&) { \
             caught = true; \
         } catch (...) { \
@@ -217,7 +270,7 @@ std::string to_string_repr(const T& val) {
 #define ASSERT_NO_THROW(expression) \
     do { \
         try { \
-            expression; \
+            (void)(expression); \
         } catch (const std::exception& e) { \
             throw ::stl::test::TestFailure( \
                 std::string("Expected no exception from " #expression ", but caught: ") + e.what(), \
