@@ -12,12 +12,14 @@ Krishna's implementation on `dev_krishna`:
 
 - `include/stl/stl_iterator.hpp`: standard-compatible iterator tags, traits
   (including raw pointers), and a key-free tree node base.
+- `include/stl/stl_memory.hpp`: allocator-aware object construction and cleanup,
+  shared by both trees.
 - `include/stl/rb_tree.hpp`: red-black tree with insertion/deletion balancing,
   allocator-backed node construction, bidirectional iteration, and validation.
 - `include/stl/splay_tree.hpp`: zig, zig-zig, and zig-zag self-adjusting tree;
   iterative copying and destruction handle deeply skewed trees.
 - `include/stl/segment_tree.hpp`: configurable aggregation and lazy range updates.
-- `tests/test_iterator.cpp`, `tests/test_trees.cpp`, and
+- `tests/test_iterator.cpp`, `tests/test_memory.cpp`, `tests/test_trees.cpp`, and
   `tests/test_segment_tree.cpp`: standalone correctness tests.
 
 `src/` and `benchmarks/` are reserved for future non-header code and benchmarks.
@@ -43,6 +45,7 @@ On Windows, `mingw32-make` can be used instead of `make`; Git Bash/MSYS2's `sh`,
 | `make build`                      | Compile without running tests                                   |
 | `make debug`                      | Build and run with debug symbols and GCC/libstdc++ debug checks |
 | `make run-test_trees`             | Build and run only the tree suite                               |
+| `make run-test_memory`            | Build and run only allocation tests                             |
 | `make clean`                      | Remove generated files under `build/`                           |
 | `make -j4`                        | Build and run suites in parallel                                |
 
@@ -66,9 +69,23 @@ g++ -std=c++20 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -Iinc
 ./build/test_segment_tree_sanitized.exe
 ```
 
-Local validation: GCC 15.2/MinGW passes all three suites in optimized and debug
+Local validation: GCC 15.2/MinGW passes all four suites in optimized and debug
 builds with warnings treated as errors. Sanitizer validation is **not completed**:
 the installed MinGW toolchain cannot link `libasan` or `libubsan`.
+
+## Allocation helpers
+
+`include/stl/stl_memory.hpp` provides `stl::allocate_object(allocator, args...)`
+and `stl::deallocate_object(allocator, pointer)`. The helpers use
+`std::allocator_traits`, forward constructor arguments, and release the allocated
+slot if construction throws. They support over-aligned types and allocator
+pointer types through `std::to_address`.
+
+Deallocation accepts a null pointer as a no-op. Otherwise, pass a live object
+returned by `allocate_object` and the original allocator or an equivalent copy.
+Object destruction and allocator deallocation must not throw. These are wrappers
+around an allocator, not a replacement memory pool. Both trees use them with
+`std::allocator` internally; their public template parameters remain unchanged.
 
 ## Trees
 
@@ -202,6 +219,8 @@ traversal is O(n). `size()` and `empty()` are O(1) for all containers.
 ## Test coverage
 
 - Iterator concepts, read-only key references, and custom traits.
+- Allocator construction failure cleanup, failed allocations, move-only constructor
+  arguments, over-aligned storage, null deallocation, and live-object tracking.
 - Seeded differential tree tests against `std::set`, ascending/descending
   comparators, duplicate keys, bidirectional traversal, iterator erasure,
   copies, moves, and non-default-constructible keys.
