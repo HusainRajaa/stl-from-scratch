@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+#include <cstddef>
 #include <numeric>
 #include <stdexcept>
 #include <utility>
