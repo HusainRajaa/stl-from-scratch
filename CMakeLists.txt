@@ -42,6 +42,14 @@ foreach(TEST_SRC ${TEST_SOURCES})
     endif()
 endforeach()
 
+file(GLOB DEMO_SOURCES CONFIGURE_DEPENDS "src/demo_*.cpp")
+foreach(DEMO_SRC ${DEMO_SOURCES})
+    get_filename_component(DEMO_NAME ${DEMO_SRC} NAME_WE)
+    add_executable(${DEMO_NAME} ${DEMO_SRC})
+    target_link_libraries(${DEMO_NAME} PRIVATE stl_headers)
+    add_test(NAME ${DEMO_NAME} COMMAND ${DEMO_NAME})
+endforeach()
+
 # Benchmarks
 file(GLOB BENCH_SOURCES CONFIGURE_DEPENDS "benchmarks/benchmark_*.cpp")
 foreach(BENCH_SRC ${BENCH_SOURCES})
