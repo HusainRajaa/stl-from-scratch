@@ -1,19 +1,60 @@
 # STL from Scratch: Advanced Heaps, Trie, Graph DSU & Benchmarks
 
+## Run the C++ demos
+
+From the project root, build and run all demos with:
+
+```sh
+make cpp
+```
+
+`make run` remains available as an equivalent command.
+
+Each file is a standalone C++20 program with its own `main()`:
+
+| Source                      | Command                      |
+| --------------------------- | ---------------------------- |
+| `src/demo_trees.cpp`        | `make run-demo_trees`        |
+| `src/demo_segment_tree.cpp` | `make run-demo_segment_tree` |
+| `src/demo_heaps.cpp`        | `make run-demo_heaps`        |
+| `src/demo_trie.cpp`         | `make run-demo_trie`         |
+| `src/demo_dsu.cpp`          | `make run-demo_dsu`          |
+
+The demos print operations and results; they do not require interactive input.
+Use `make test` for tests only, or `make` for tests and demos together.
+
+In WSL, keep Linux binaries separate from Windows builds:
+
+```sh
+cd /mnt/c/Users/DELL/OneDrive/Desktop/stl-from-scratch
+make BUILD_DIR=build/wsl cpp
+```
+
+You can also compile any demo directly:
+
+```sh
+mkdir -p build/examples
+g++ -std=c++20 -Wall -Wextra -Wpedantic -Iinclude src/demo_dsu.cpp -o build/examples/demo_dsu.exe
+./build/examples/demo_dsu.exe
+```
+
+CMake builds the same demos as targets named `demo_trees`, `demo_segment_tree`,
+`demo_heaps`, `demo_trie`, and `demo_dsu`. CTest also runs them as smoke tests.
+
 Advanced Data Structures coursework: custom header-only C++20 standard template library containers implemented from scratch. This branch (`dev_husain`) implements Husain's component portfolio: Advanced Heaps, String Containers, Graph Disjoint Sets, C++20 Test Harness, and Performance Benchmarks.
 
 ---
 
 ## Portfolio Division (Husain's Implementation)
 
-| Container / Module | Header File | Key Data Structure & Algorithm | Syllabus Target |
-| :--- | :--- | :--- | :--- |
-| **Binomial Heap** | `include/stl/binomial_heap.hpp` | Collection of binomial trees ($B_k$), binary addition union | Advanced Priority Queues |
-| **Fibonacci Heap** | `include/stl/fibonacci_heap.hpp` | Circular doubly-linked root lists, lazy consolidation, cascading cuts | Amortized Optimal Priority Queue |
-| **Compressed Trie** | `include/stl/compressed_trie.hpp` | Radix / Patricia Trie with edge label compression and dynamic recompression | String Data Structures |
-| **Disjoint Set Union** | `include/stl/dsu.hpp` | Union by Rank with Path Compression ($\mathcal{O}(\alpha(n))$) | Advanced Graph Containers |
-| **Test Runner** | `tests/test_runner.hpp` | Header-only test harness with timing measurement, C++20 type-safe assertions | Testing Framework |
-| **Heap Benchmarks** | `benchmarks/benchmark_heaps.cpp` | Comprehensive microbenchmarks comparing against `std::priority_queue` | Empirical Complexity Evaluation |
+| Container / Module     | Header File                       | Key Data Structure & Algorithm                                               | Syllabus Target                  |
+| :--------------------- | :-------------------------------- | :--------------------------------------------------------------------------- | :------------------------------- |
+| **Binomial Heap**      | `include/stl/binomial_heap.hpp`   | Collection of binomial trees ($B_k$), binary addition union                  | Advanced Priority Queues         |
+| **Fibonacci Heap**     | `include/stl/fibonacci_heap.hpp`  | Circular doubly-linked root lists, lazy consolidation, cascading cuts        | Amortized Optimal Priority Queue |
+| **Compressed Trie**    | `include/stl/compressed_trie.hpp` | Radix / Patricia Trie with edge label compression and dynamic recompression  | String Data Structures           |
+| **Disjoint Set Union** | `include/stl/dsu.hpp`             | Union by Rank with Path Compression ($\mathcal{O}(\alpha(n))$)               | Advanced Graph Containers        |
+| **Test Runner**        | `tests/test_runner.hpp`           | Header-only test harness with timing measurement, C++20 type-safe assertions | Testing Framework                |
+| **Heap Benchmarks**    | `benchmarks/benchmark_heaps.cpp`  | Comprehensive microbenchmarks comparing against `std::priority_queue`        | Empirical Complexity Evaluation  |
 
 ---
 
@@ -171,28 +212,28 @@ auto groups = dsu.sets();
 
 ## Complexity Analysis ($\mathcal{O}$ Notation)
 
-| Container | Operation | Time Complexity (Average) | Time Complexity (Worst Case) | Space Complexity |
-| :--- | :--- | :--- | :--- | :--- |
-| **`stl::binomial_heap`** | `push` / `emplace` | $\mathcal{O}(1)$ amortized | $\mathcal{O}(\log n)$ | $\mathcal{O}(n)$ |
-| | `top` | $\mathcal{O}(\log n)$ / $\mathcal{O}(1)$ cached | $\mathcal{O}(\log n)$ | $\mathcal{O}(1)$ |
-| | `pop` | $\mathcal{O}(\log n)$ | $\mathcal{O}(\log n)$ | $\mathcal{O}(1)$ auxiliary |
-| | `merge` | $\mathcal{O}(\log n)$ | $\mathcal{O}(\log n)$ | $\mathcal{O}(1)$ auxiliary |
-| | `update_key` | $\mathcal{O}(\log n)$ | $\mathcal{O}(\log n)$ | $\mathcal{O}(1)$ auxiliary |
-| **`stl::fibonacci_heap`** | `push` / `emplace` | $\mathcal{O}(1)$ | $\mathcal{O}(1)$ | $\mathcal{O}(n)$ |
-| | `top` | $\mathcal{O}(1)$ | $\mathcal{O}(1)$ | $\mathcal{O}(1)$ |
-| | `pop` | $\mathcal{O}(\log n)$ amortized | $\mathcal{O}(n)$ | $\mathcal{O}(\log n)$ auxiliary |
-| | `merge` | $\mathcal{O}(1)$ | $\mathcal{O}(1)$ | $\mathcal{O}(1)$ |
-| | `update_key` | $\mathcal{O}(1)$ amortized | $\mathcal{O}(\log n)$ | $\mathcal{O}(1)$ auxiliary |
-| | `erase` | $\mathcal{O}(\log n)$ amortized | $\mathcal{O}(n)$ | $\mathcal{O}(\log n)$ auxiliary |
-| **`stl::compressed_trie`** | `insert` | $\mathcal{O}(k)$ | $\mathcal{O}(k \cdot |\Sigma|)$ | $\mathcal{O}(N \cdot k)$ compressed |
-| | `contains` | $\mathcal{O}(k)$ | $\mathcal{O}(k \cdot |\Sigma|)$ | $\mathcal{O}(1)$ |
-| | `erase` | $\mathcal{O}(k)$ | $\mathcal{O}(k \cdot |\Sigma|)$ | $\mathcal{O}(1)$ auxiliary |
-| | `autocomplete` | $\mathcal{O}(k + m)$ | $\mathcal{O}(k + m)$ | $\mathcal{O}(m)$ output |
-| **`stl::disjoint_set`** | `find` | $\mathcal{O}(\alpha(n))$ | $\mathcal{O}(\alpha(n))$ | $\mathcal{O}(n)$ |
-| | `unite` | $\mathcal{O}(\alpha(n))$ | $\mathcal{O}(\alpha(n))$ | $\mathcal{O}(1)$ auxiliary |
-| | `connected` | $\mathcal{O}(\alpha(n))$ | $\mathcal{O}(\alpha(n))$ | $\mathcal{O}(1)$ auxiliary |
+| Container                  | Operation          | Time Complexity (Average)                       | Time Complexity (Worst Case) | Space Complexity                |
+| :------------------------- | :----------------- | :---------------------------------------------- | :--------------------------- | :------------------------------ |
+| **`stl::binomial_heap`**   | `push` / `emplace` | $\mathcal{O}(1)$ amortized                      | $\mathcal{O}(\log n)$        | $\mathcal{O}(n)$                |
+|                            | `top`              | $\mathcal{O}(\log n)$ / $\mathcal{O}(1)$ cached | $\mathcal{O}(\log n)$        | $\mathcal{O}(1)$                |
+|                            | `pop`              | $\mathcal{O}(\log n)$                           | $\mathcal{O}(\log n)$        | $\mathcal{O}(1)$ auxiliary      |
+|                            | `merge`            | $\mathcal{O}(\log n)$                           | $\mathcal{O}(\log n)$        | $\mathcal{O}(1)$ auxiliary      |
+|                            | `update_key`       | $\mathcal{O}(\log n)$                           | $\mathcal{O}(\log n)$        | $\mathcal{O}(1)$ auxiliary      |
+| **`stl::fibonacci_heap`**  | `push` / `emplace` | $\mathcal{O}(1)$                                | $\mathcal{O}(1)$             | $\mathcal{O}(n)$                |
+|                            | `top`              | $\mathcal{O}(1)$                                | $\mathcal{O}(1)$             | $\mathcal{O}(1)$                |
+|                            | `pop`              | $\mathcal{O}(\log n)$ amortized                 | $\mathcal{O}(n)$             | $\mathcal{O}(\log n)$ auxiliary |
+|                            | `merge`            | $\mathcal{O}(1)$                                | $\mathcal{O}(1)$             | $\mathcal{O}(1)$                |
+|                            | `update_key`       | $\mathcal{O}(1)$ amortized                      | $\mathcal{O}(\log n)$        | $\mathcal{O}(1)$ auxiliary      |
+|                            | `erase`            | $\mathcal{O}(\log n)$ amortized                 | $\mathcal{O}(n)$             | $\mathcal{O}(\log n)$ auxiliary |
+| **`stl::compressed_trie`** | `insert`           | $\mathcal{O}(k)$                                | $\mathcal{O}(k \cdot         | \Sigma                          | )$  | $\mathcal{O}(N \cdot k)$ compressed |
+|                            | `contains`         | $\mathcal{O}(k)$                                | $\mathcal{O}(k \cdot         | \Sigma                          | )$  | $\mathcal{O}(1)$                    |
+|                            | `erase`            | $\mathcal{O}(k)$                                | $\mathcal{O}(k \cdot         | \Sigma                          | )$  | $\mathcal{O}(1)$ auxiliary          |
+|                            | `autocomplete`     | $\mathcal{O}(k + m)$                            | $\mathcal{O}(k + m)$         | $\mathcal{O}(m)$ output         |
+| **`stl::disjoint_set`**    | `find`             | $\mathcal{O}(\alpha(n))$                        | $\mathcal{O}(\alpha(n))$     | $\mathcal{O}(n)$                |
+|                            | `unite`            | $\mathcal{O}(\alpha(n))$                        | $\mathcal{O}(\alpha(n))$     | $\mathcal{O}(1)$ auxiliary      |
+|                            | `connected`        | $\mathcal{O}(\alpha(n))$                        | $\mathcal{O}(\alpha(n))$     | $\mathcal{O}(1)$ auxiliary      |
 
-*Note: $k$ denotes key string length, $m$ the number of matched descendant characters, and $\alpha(n) \le 4$ is the inverse Ackermann function.*
+_Note: $k$ denotes key string length, $m$ the number of matched descendant characters, and $\alpha(n) \le 4$ is the inverse Ackermann function._
 
 ---
 
@@ -221,9 +262,11 @@ Measured on Apple Silicon (M-series, 64-bit ARM) with AppleClang 16.0.0 and `-O3
 ```
 
 ### Key Insights:
+
 1. **Merge Advantage**: `stl::fibonacci_heap` executes 50-heap merging at **27.4M ops/s (3.65 ms)**, decisively outperforming `std::priority_queue` copying and rebuilding.
 2. **Decrease-Key Speed**: With direct node handles and cascading cuts, `stl::fibonacci_heap` updates 50,000 keys in **0.16 ms (>307 million operations/second)**.
-=======
+   \=======
+
 # STL from Scratch
 
 Advanced Data Structures coursework: header-only C++20 containers implemented
@@ -248,9 +291,9 @@ Krishna's implementation on `dev_krishna`:
 - `tests/test_iterator.cpp`, `tests/test_memory.cpp`, `tests/test_trees.cpp`, and
   `tests/test_segment_tree.cpp`: standalone correctness tests.
 
-`src/` and `benchmarks/` are reserved for future non-header code and benchmarks.
-Husain's CMake configuration, test harness, heaps, trie, DSU, and heap benchmarks
-are intentionally outside this branch's implementation scope.
+`src/` contains runnable demos for the merged containers. `benchmarks/` contains
+Husain's heap performance benchmark. The merged project also includes his test
+harness, CMake configuration, heaps, trie, and DSU.
 
 ## Build and test
 
@@ -261,22 +304,26 @@ repository root in Git Bash, MSYS2, or a POSIX shell:
 make
 ```
 
-This builds and runs every test suite, stopping on a build error or failed test.
+This builds and runs every test suite and demo, stopping on a build error or
+nonzero exit status.
 On Windows, `mingw32-make` can be used instead of `make`; Git Bash/MSYS2's `sh`,
 `mkdir`, and `rm` must be on `PATH`.
 
-| Command                           | Action                                                          |
-| --------------------------------- | --------------------------------------------------------------- |
-| `make` / `make test` / `make run` | Build and run all tests                                         |
-| `make build`                      | Compile without running tests                                   |
-| `make debug`                      | Build and run with debug symbols and GCC/libstdc++ debug checks |
-| `make run-test_trees`             | Build and run only the tree suite                               |
-| `make run-test_memory`            | Build and run only allocation tests                             |
-| `make clean`                      | Remove generated files under `build/`                           |
-| `make -j4`                        | Build and run suites in parallel                                |
+| Command                | Action                                                          |
+| ---------------------- | --------------------------------------------------------------- |
+| `make`                 | Build and run all tests and demos                               |
+| `make test`            | Build and run all tests                                         |
+| `make run`             | Build and run all demos                                         |
+| `make build`           | Compile tests and demos without running them                    |
+| `make debug`           | Build and run with debug symbols and GCC/libstdc++ debug checks |
+| `make run-test_trees`  | Build and run only the tree suite                               |
+| `make run-test_memory` | Build and run only allocation tests                             |
+| `make clean`           | Remove generated files under `build/`                           |
+| `make -j4`             | Build and run suites in parallel                                |
 
-The Makefile discovers standalone `tests/*.cpp` executables automatically. Each
-file must have its own `main()`. New tests require no manual source-list update;
+The Makefile discovers standalone `tests/*.cpp` and `src/demo_*.cpp` executables
+automatically. Each file must have its own `main()`. New tests and demos require
+no manual source-list update;
 compiler-generated dependencies rebuild affected tests when headers change.
 Keep the Makefile updated when adding other executable types, shared `.cpp`
 implementation files, or new build requirements.
